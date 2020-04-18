@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AWS Logs</title>
+    <style>
+      table {
+          width: 100%;
+          border: 1px solid black;
+          border-collapse: collapse;
+          border-cellspacing: 0px;
+          border-cellpadding: 0px;
+      }
+      th, td {
+          border: 1px solid black;
+          margin: 1px;
+          padding: 1px;
+          font-size: 12px;
+      }
+    </style>
+</head>
+<body>
+        <h5>AWS Lambda Logs</h5>
+        <div class="table-title">
+        <table class="table-fill">
+             <thead>
+                <tr>
+                    <th>No.</th>
+                    <th>Event Id</th>
+                    <th>Log Stream Name</th>
+                    <th>Lambda Log Message</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for cw_list_line in cw_list %}
+            <tr>
+                <td>{{ cw_list_line.rowNumber }}</td>
+                <td>{{ cw_list_line.eventId }}</td>
+                <td>{{ cw_list_line.logStreamName }}</td>
+                <td>{{ cw_list_line.message }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        </div>
+</body>
+</html>

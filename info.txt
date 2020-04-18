@@ -1,0 +1,129 @@
+API Gateway at http://localhost:4567
+Kinesis at http://localhost:4568
+DynamoDB at http://localhost:4569
+DynamoDB Streams at http://localhost:4570
+S3 at http://localhost:4572
+Firehose at http://localhost:4573
+Lambda at http://localhost:4574
+SNS at http://localhost:4575
+SQS at http://localhost:4576
+Redshift at http://localhost:4577
+Elasticsearch Service at http://localhost:4578
+SES at http://localhost:4579
+Route53 at http://localhost:4580
+CloudFormation at http://localhost:4581
+CloudWatch at http://localhost:4582
+SSM at http://localhost:4583
+SecretsManager at http://localhost:4584
+StepFunctions at http://localhost:4585
+CloudWatch Logs at http://localhost:4586
+EventBridge (CloudWatch Events) at http://localhost:4587
+STS at http://localhost:4592
+IAM at http://localhost:4593
+EC2 at http://localhost:4597
+KMS at http://localhost:4599
+
+========================================================================================================================================================================
+참고 URL
+========================================================================================================================================================================
+1) kinesis consumer 설정
+https://docs.aws.amazon.com/ko_kr/lambda/latest/dg/with-kinesis.html
+
+========================================================================================================================================================================
+LocalStack Web
+http://192.168.70.128/#/infra
+========================================================================================================================================================================
+
+========================================================================================================================================================================
+*LocalStack cli
+========================================================================================================================================================================
+========================================================================================================================================================================
+** S3
+========================================================================================================================================================================
+
+aws --endpoint-url=http://192.168.70.128:4573 s3 ls
+aws --endpoint-url=http://192.168.70.128:4572 s3 ls kinesis-test/myFolder/2020/04/08/23/
+aws --endpoint-url=http://192.168.70.128:4572 s3 cp s3://kinesis-test/myFolder/2020/04/09/00/firehose-stream-01-2020-04-09-00-31-36-3e5400ee-cf79-44dd-8a8d-2a02e1a0e102 /home/javaking1129/test2020
+
+aws --endpoint-url=http://192.168.70.128:4572 s3 ls weblog-output-bucket/
+aws --endpoint-url=http://192.168.70.128:4572 s3 ls weblog-output-bucket//output/2020/04/18/06/
+
+aws --endpoint-url=http://192.168.70.128:4572 s3 cp s3://weblog-output-bucket/output/2020/04/18/07/* root@192.168.70.128:/root/sdyoo/
+
+========================================================================================================================================================================
+** Kinesis - firehose
+========================================================================================================================================================================
+
+aws --endpoint-url=http://192.168.70.128:4573 firehose list-delivery-streams --delivery-stream-type 'DirectPut'
+aws --endpoint-url=http://192.168.70.128:4573 firehose list-delivery-streams --delivery-stream-type 'KinesisStreamAsSource'
+
+========================================================================================================================================================================
+** Kinesis - data stream
+========================================================================================================================================================================
+
+aws --endpoint-url=http://192.168.70.128:4568 kinesis list-streams
+aws --endpoint-url=http://192.168.70.128:4568 kinesis describe-stream --stream-name 'weblog-kinesis-datastream'
+aws --endpoint-url=http://192.168.70.128:4568 kinesis get-shard-iterator --shard-id shardId-000000000000 --shard-iterator-type TRIM_HORIZON --stream-name weblog-kinesis-datastream
+aws --endpoint-url=http://192.168.70.128:4568 kinesis get-shard-iterator --shard-id shardId-000000000000 --shard-iterator-type LATEST --stream-name weblog-kinesis-datastream
+aws --endpoint-url=http://192.168.70.128:4568 kinesis get-records --shard-iterator "AAAAAAAAAAG5jd6UTe8KLKKgPZGCkm6AaTk2F0m18ZOm/y4Q5OE5AkIrVIOKKGou55Ze8e6Or2Y39lcFyJLDP0SHjWdaUqdQ6zuJ42ZWdaT1b8Ltajbik5KDd5G4FxO7f1cFVRJ+WUGlFeuKO6GLaZq/jzyex1hQUxgEVq4mKlcYqLUHN4QhuOkzKH6GQf3LMTctE3clX5vw+U5cVjmpRAjcsLtBVvFj"
+
+========================================================================================================================================================================
+** IAM
+========================================================================================================================================================================
+
+aws --endpoint-url=http://192.168.70.128:4593 iam list-roles
+aws --endpoint-url=http://192.168.70.128:4593 iam get-role --kinesis
+
+========================================================================================================================================================================
+** CloudWatch
+========================================================================================================================================================================
+aws --endpoint-url=http://192.168.70.128:4582 cloudwatch list-metrics
+
+========================================================================================================================================================================
+** CloudWatch Logs
+========================================================================================================================================================================
+aws --endpoint-url=http://192.168.70.128:4586 logs get-log-events --log-group-name /aws/lambda/weblog_convert_lambda
+aws --endpoint-url=http://192.168.70.128:4586 logs get-log-events --log-group-name /aws/lambda/weblog_convert_lambda --log-stream-name ''
+aws --endpoint-url=http://192.168.70.128:4586 logs describe-log-groups
+
+========================================================================================================================================================================
+** Lambda
+========================================================================================================================================================================
+
+aws --endpoint-url=http://192.168.70.128:4574 lambda list-functions
+aws --endpoint-url=http://192.168.70.128:4574 lambda invoke --function-name weblog_convert_lambda out --log-type Tail --query 'LogResult' --output text |  base64
+aws --endpoint-url=http://192.168.70.128:4574 lambda invoke --function-name weblog_convert_lambda out --log-type Tail --query 'LogResult' --output text |  base64 -d
+
+aws --endpoint-url=http://192.168.70.128:4574 lambda get-event-source-mapping --uuid '77499e90-4bda-49ed-9f62-b67a8732a7c2'
+
+================
+================
+aws --endpoint-url=http://192.168.70.128:4574 lambda invoke --function-name weblog_convert_lambda --payload file:///home/javaking1129/test2020/input.txt out.txt
+aws --endpoint-url=http://192.168.70.128:4574 lambda invoke --function-name weblog_convert_lambda --payload file:///home/javaking1129/test2020/input.txt output.txt
+{
+    "StatusCode": 200
+}
+
+input.txt
+{
+    "Records": [
+        {
+            "kinesis": {
+                "kinesisSchemaVersion": "1.0",
+                "partitionKey": "1",
+                "sequenceNumber": "49590338271490256608559692538361571095921575989136588898",
+                "data": "SGVsbG8sIHRoaXMgaXMgYSB0ZXN0Lg==",
+                "approximateArrivalTimestamp": 1545084650.987
+            },
+            "eventSource": "aws:kinesis",
+            "eventVersion": "1.0",
+            "eventID": "shardId-000000000006:49590338271490256608559692538361571095921575989136588898",
+            "eventName": "aws:kinesis:record",
+            "invokeIdentityArn": "arn:aws:iam::123456789012:role/lambda-kinesis-role",
+            "awsRegion": "us-east-2",
+            "eventSourceARN": "arn:aws:kinesis:us-east-2:123456789012:stream/lambda-stream"
+        }
+    ]
+}
+
+output.txt
